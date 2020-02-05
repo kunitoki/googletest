@@ -21,6 +21,8 @@ option(gtest_build_samples "Build gtest's sample programs." OFF)
 
 option(gtest_disable_pthreads "Disable uses of pthreads in gtest." OFF)
 
+option(gtest_no_exceptions "Build without exception." OFF)
+
 option(
   gtest_hide_internal_symbols
   "Build gtest with internal symbols hidden in shared libraries."
@@ -122,11 +124,17 @@ include_directories(${gtest_build_include_dirs})
 # Defines the gtest & gtest_main libraries.  User tests should link
 # with one of them.
 
+if (gtest_no_exceptions)
+  set(cxx_additional_flags "${cxx_no_exception_flags}")
+else()
+  set(cxx_additional_flags "${cxx_exception_flags}")
+endif()
+
 # Google Test libraries.  We build them using more strict warnings than what
 # are used for other targets, to ensure that gtest can be compiled by a user
 # aggressive about warnings.
-cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
-cxx_library(gtest_main "${cxx_strict}" src/gtest_main.cc)
+cxx_library(gtest "${cxx_strict} ${cxx_additional_flags}" src/gtest-all.cc)
+cxx_library(gtest_main "${cxx_strict} ${cxx_additional_flags}" src/gtest_main.cc)
 # If the CMake version supports it, attach header directory information
 # to the targets for when we are part of a parent build (ie being pulled
 # in via add_subdirectory() rather than being a standalone build).
